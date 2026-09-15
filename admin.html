@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="application-name" content="Ontomasticon">
+  <meta name="author" content="Ed Baker (https://ebaker.me.uk)">
+  <meta name="description" content="Simple ontology and glossary server.">
+  <title>Administering Ontomasticon</title>
+</head>
+<body>
+  <h1>Administering Ontomasticon</h1>
+  <p><a href="https://ontomasticon.github.io">Ontomasticon</a> is a simple, lightweight ontology and glossary server written in PHP and making use of MariaDB or MySQL.</p>
+  <p>This page describes the administration pages: configuring the site, managing users and their roles, updating the database
+    and the warnings shown to administrators. Adding and editing controlled vocabularies and terms is described on the page
+    <a href="editing.html">Editing vocabularies and terms</a>.</p>
+
+  <h2>Logging in</h2>
+  <p>Log in at [base_url]/user/login. Once logged in, the menu shows an Administration link to users who can use any of the
+    administration pages, a User link to your own settings, and a Logout link. The administration pages have a menu of their own,
+    which only lists the pages you have permission to use.</p>
+  <p>The install script creates a single account, with the email address <code>admin</code> and the password <code>password</code>.
+    Anyone who logs in with the password <code>password</code> is sent to their user settings page and cannot use any other page
+    (apart from logging out and the API) until they have changed it. The new password cannot be <code>password</code> again.</p>
+  <p>After 5 failed logins for the same email address, or 20 from the same IP address, within 15 minutes, further logins are
+    refused until the failed attempts are more than 15 minutes old. If the site is behind a CDN or reverse proxy, list its addresses
+    in <code>$trusted_proxies</code> in settings/db.php so that visitors' own IP addresses are used.</p>
+
+  <h2>Administration warnings</h2>
+  <p>Users with the Admin role see a box of warnings at the top of every page when something needs attention.</p>
+  <table>
+    <tr><th>Warning</th><th>Meaning</th></tr>
+    <tr><td>Installer</td><td>The inst directory still exists. Delete it once Ontomasticon is installed, as anyone could otherwise
+      run the install script.</td></tr>
+    <tr><td>Database update</td><td>The code is a newer version than the database, and the <a href="#update">database update</a>
+      needs to be run. If the database is a newer version than the code, the warning asks you to upgrade the code instead.
+      This warning is not shown on the update page itself.</td></tr>
+    <tr><td>Admin Password</td><td>The installation account (the first user, created by the install script) still has the
+      password <code>password</code>.</td></tr>
+    <tr><td>Update Available</td><td>A newer version of Ontomasticon has been released. Once a day, when an administrator loads
+      a page, Ontomasticon compares its version with the version in index.php on the master branch of the
+      <a href="https://github.com/ontomasticon/ontomasticon">GitHub repository</a>. If GitHub cannot be reached, the result
+      of the last successful check is kept and the check is tried again the next day.</td></tr>
+  </table>
+
+  <h2>Configuring the site</h2>
+  <p>The site configuration page, [base_url]/admin/config, can only be used by users with the Admin role. Its settings are
+    stored in the config table of the database.</p>
+  <table>
+    <tr><th>Setting</th><th>What it does</th></tr>
+    <tr><td>Site name</td><td>The name shown in the page header and browser title, and used in the suggested citation at the
+      bottom of each page. In linked data (JSON-LD and Turtle) it is the title (dcterms:title, rdfs:label and skos:prefLabel) of
+      the site's own concept scheme, which holds the terms that are not in a controlled vocabulary.</td></tr>
+    <tr><td>Author</td><td>The person or people responsible for the site. It is used in the suggested citation and the page's
+      author meta tag, and as the creator (dcterms:creator) of the site's own concept scheme. It is not given for controlled
+      vocabularies.</td></tr>
+    <tr><td>Publisher</td><td>The organisation that publishes the vocabularies, if there is one. It is given as the publisher
+      (dcterms:publisher) of the site's own concept scheme and of every controlled vocabulary. Leave it empty to leave it out.</td></tr>
+    <tr><td>Default language</td><td>The language code of the site's own content, for example <code>en</code>. The user interface
+      is shown untranslated in this language, and other languages use a language pack and translated site settings (see
+      <a href="translating.html">Translating Ontomasticon</a>). In linked data, the names and descriptions of the site's concept
+      scheme and of every controlled vocabulary are tagged with this language, as long as it is a valid language tag such as
+      <code>en</code> or <code>en-GB</code> (not <code>en_GB</code>).</td></tr>
+    <tr><td>Base URL</td><td>The address of the site, for example <code>glossary.example.org/</code> or
+      <code>http://glossary.example.org/</code>. If it doesn't start with http:// or https://, https:// is assumed, and a
+      trailing slash is added if it is missing. The install script sets it to the server's name. Every URI Ontomasticon gives
+      to a vocabulary or term starts with this address (see <a href="editing.html#uris">Addresses of vocabularies and terms</a>),
+      so it should be the address the site is really served from, and changing it changes every URI. Linked data requests to the
+      site's own addresses only find a term if its URI starts with the base URL.</td></tr>
+    <tr><td>Description</td><td>A description of the site, shown on the home page. HTML can be used, and is shown as it is
+      entered. The page's description meta tag uses it with HTML tags removed. In linked data it is the description
+      (dcterms:description) of the site's own concept scheme, as plain text.</td></tr>
+    <tr><td>License</td><td>The web address of the license the vocabularies are published under, for example
+      <code>https://creativecommons.org/licenses/by/4.0/</code>. It must start with http:// or https://, or be left empty.
+      It is given as the license (dcterms:license) of the site's own concept scheme and of every controlled vocabulary.</td></tr>
+    <tr><td>Namespace prefix</td><td>A short prefix for the terms that are not in a controlled vocabulary, for example
+      <code>gl</code>. It must start with a letter, use only letters, digits, hyphens and underscores, and be at most 20
+      characters long, or be left empty. In linked data it is given as the preferred namespace prefix
+      (vann:preferredNamespacePrefix) of the site's own concept scheme, with the base URL as its namespace
+      (vann:preferredNamespaceUri). Controlled vocabularies have prefixes of their own.</td></tr>
+  </table>
+  <p>If the license or namespace prefix is not valid, none of the settings are saved.</p>
+  <p>The config table has some rows that are not on this page: <code>mode</code> (set it to <code>debug</code> to show PHP errors),
+    the version numbers of the code and database, the results of the update check, and any translated site names and descriptions.
+    These are changed in the database directly.</p>
+
+  <h2>Users and roles</h2>
+  <p>The users page, [base_url]/admin/users, lists every user with their email address and role, and can only be used by users
+    with the Admin role. A user's role can be changed by choosing it from the list next to them and pressing Save. You cannot change
+    your own role, and the installation account (the first user, created by the install script) always has full access whatever
+    role it has, so neither can be changed here.</p>
+  <p>Each role allows a set of tasks.</p>
+  <table>
+    <tr><th>Role</th><th>Can</th></tr>
+    <tr><td>None</td><td>Log in and change their own name and password, but nothing else.</td></tr>
+    <tr><td>Editor</td><td>Add, edit and delete terms, and edit controlled vocabularies.</td></tr>
+    <tr><td>Editor and CV creator</td><td>Everything an Editor can do, and add controlled vocabularies.</td></tr>
+    <tr><td>Admin</td><td>Everything: all of the above, deleting controlled vocabularies, configuring the site, managing users,
+      running the database update and seeing the administration warnings.</td></tr>
+  </table>
+  <p>Deleting a controlled vocabulary also deletes all of its terms, so only admins can do it.</p>
+
+  <h3>Adding a user</h3>
+  <p>Admins can add a user from the Add user link on the users page ([base_url]/admin/users/add). Enter their first name, surname,
+    email address and password, and choose a role. The email address and password are required, and the email address is what the
+    user logs in with, so no two users can have the same one. It is not checked to be a real email address. Tell the user their
+    password yourself: Ontomasticon doesn't send email. If you give them the password <code>password</code>, they will have to change it
+    when they first log in.</p>
+
+  <h3>Editing and deleting a user</h3>
+  <p>The edit link next to a user ([base_url]/admin/users/edit/[user id]) lets an admin change the user's first name, surname and
+    email address, or delete the user. Deleting a user cannot be undone. The installation account cannot be deleted, and neither can
+    your own account. Admins cannot set another user's password.</p>
+
+  <h3>Your own settings</h3>
+  <p>Any logged in user can change their own first name, last name and password on the user settings page, [base_url]/user/settings.
+    To change the password, enter the current password and the new password twice.</p>
+
+  <h2 id="update">Updating the database</h2>
+  <p>New versions of Ontomasticon sometimes need changes to the database. After replacing the code with a new version, an admin should
+    visit the database update page, [base_url]/admin/update (also available at [base_url]/update). The Database update warning links
+    to it when an update is needed.</p>
+  <p>The update page makes each change needed to bring the database up to the version of the code, in order, and reports each version
+    it updates to. If the database is already up to date it says "No updates required." It is safe to run more than once. If a step
+    fails, the error is shown and the later steps are not run, so the problem can be fixed and the update run again.</p>
+  <table>
+    <tr><th>Version</th><th>Changes</th></tr>
+    <tr><td>0.2</td><td>Adds references to terms.</td></tr>
+    <tr><td>0.3</td><td>Requires every user to have a different email address, adds the table used to limit failed logins, and removes
+      links from terms to parent and broader terms that had been deleted. If some email addresses belong to more than one user the
+      update stops and lists them: change or remove the duplicate accounts in the database, then run the update again.</td></tr>
+    <tr><td>0.4</td><td>Records when terms are added and changed (terms that already exist are left without dates), and adds namespace
+      prefixes for controlled vocabularies and the publisher, license and namespace prefix settings.</td></tr>
+  </table>
+
+  <h2>Forms</h2>
+  <p>Every form carries a code tied to your login session, so that other websites cannot submit forms on your behalf. If a form is
+    submitted after the session has expired, nothing is saved and the message
+    "The form could not be verified. Please reload the page and try again." is shown.</p>
+
+</body>
+</html>

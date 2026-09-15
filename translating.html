@@ -14,9 +14,73 @@
   <h2>Translating the interface</h2>
   <p>The user interface can be translated by creating a 'language pack' in the lang folder, the jibberish language pack is provided
   as an example and basis for user translations. Please consider submitting a pull request on GitHub for new language pack files.</p>
-  
+  <p>A language pack is named after its language code, such as lang/fr.php, and defines a function named lang_ followed by the code,
+    which returns the translations. A hyphen in the code becomes an underscore in the function's name, so lang/pt-BR.php defines
+    lang_pt_BR().</p>
+
+  <h2 id="choosing">Choosing the language</h2>
+  <p>A site is offered in its default language, and in the languages listed under Other languages on the site configuration page
+    (language codes separated by spaces, such as <code>fr pt-BR</code>). Pages are shown in the one of these that the visitor's
+    browser prefers, from its language settings. A browser that prefers a language with a region, such as en-GB, gets the language
+    without it, such as en, and the other way round. Browsers that prefer none of the site's languages get the default language.</p>
+  <p>When a site is offered in more than one language, the menu has links to switch the page to each of them. A language chosen
+    this way is used for the rest of the visit. Adding <code>?lang=</code> and a language code to a page's address also shows it in
+    that language, for example [base_url]/?lang=fr.</p>
+
   <h2>Translating user content</h2>
-  <p></p>
+  <p>Content entered by users, such as the site's settings, vocabularies and terms, is not translated by language packs. Only the
+    site name and site description can be given in more than one language. Each term is recorded in a single language.</p>
+
+  <h3>Site name and description</h3>
+  <p>When a page is shown in a language other than the site's default language (set on the site configuration page, see
+    <a href="admin.html">Administering Ontomasticon</a>), the site name and description are taken from rows of the config table
+    named after the setting, followed by an underscore and the language code, if they exist.</p>
+  <table>
+    <tr><th>Config key</th><th>Used for</th></tr>
+    <tr><td>site_name_[language code]</td><td>The page header, the browser title and the suggested citation.</td></tr>
+    <tr><td>description_[language code]</td><td>The description on the home page (HTML can be used), and the page's description
+      meta tag.</td></tr>
+  </table>
+  <p>If there is no row for the language, the untranslated setting is used. The language code must be exactly the code the page is
+    shown in, which is also the name of the language pack file (for example <code>fr</code> for lang/fr.php). See
+    <a href="#choosing">Choosing the language</a> for how a page's language is chosen.</p>
+  <p>These rows cannot be set on the site configuration page, and must be added to the config table of the database directly. For
+    example, for French:</p>
+  <pre><code>
+    INSERT INTO `config` (`key`, `value`) VALUES
+      ('site_name_fr', 'Glossaire des sons'),
+      ('description_fr', '&lt;p&gt;Un glossaire des sons des animaux.&lt;/p&gt;');
+  </code></pre>
+  <p>and to change a translation later:</p>
+  <pre><code>
+    UPDATE `config` SET `value` = 'Glossaire' WHERE `key` = 'site_name_fr';
+  </code></pre>
+  <p>A key can be at most 25 characters long. Saving the site configuration page does not change or remove these rows. Other
+    settings, such as the author and publisher, cannot be translated. The translations are not included in linked data (JSON-LD
+    and Turtle), where the site's name and description are only given in the default language.</p>
+
+  <h3>Controlled vocabularies</h3>
+  <p>The name and description of a controlled vocabulary can only be given in one language. In linked data they are tagged with the
+    site's default language.</p>
+
+  <h3>Terms in other languages</h3>
+  <p>Each term has one name, one description and one language, set in the term's Language field (see
+    <a href="editing.html">Editing vocabularies and terms</a>). The language is shown in the term's entry. Use a language tag such as
+    <code>fr</code> or <code>pt-BR</code>: the field holds at most 5 characters, and in linked data the term's name and description are
+    only tagged with its language if it is a valid language tag (so <code>pt_BR</code> is left out).</p>
+  <p>A vocabulary can contain terms in several languages. Terms are not chosen by the language a page is shown in: every page lists
+    all of its terms, whatever their language.</p>
+  <p>There is no way to give one term's name or description in several languages. Instead, a term in another language can be added
+    as a term of its own, with its own short name (for example <code>song_fr</code>), and linked to the original term by giving the
+    original's short name as its Parent.</p>
+  <ul>
+    <li>If its Invalidity is Synonym, it is not listed on its own, but under Related terms in the original term's entry, marked
+      Synonym and with its language. In linked data its name is an alternative label (skos:altLabel) of the original term, tagged
+      with its language, unless it is spelt exactly the same as the original term's name. The term in the other language is itself
+      marked as deprecated and replaced by the original term, and its description is only given in its own linked data.</li>
+    <li>If its Invalidity is None, it is listed on its own as well as under Related terms in the original term's entry. In linked
+      data the two terms are related to each other (skos:related), each with its own label and definition in its own language.</li>
+  </ul>
   
 </body>
 </html>

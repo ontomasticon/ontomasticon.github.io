@@ -9,30 +9,50 @@
 <body>
   <h1>Installing Ontomasticon</h1>
   
-  <h2>Apache settings</h2>
-  <p>The following redirects are required for proper operation.</p>
-  <pre><code>
-    RewriteEngine on
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_URI} !^/css/
-    RewriteCond %{REQUEST_URI} !^/images/
-    RewriteCond %{REQUEST_URI} !^/inst/
-    RewriteRule ^(.*)$ /index.php?path=$1 [NC,L,QSA]
-  </code></pre>
-  
   <h2>Download Ontomasticon</h2>
-  <p>Download the latest release from <a href="https://github.com/ontomasticon/ontomasticon/releases">https://github.com/ontomasticon/ontomasticon/releases</a> 
+  <p>Download the latest release from <a href="https://github.com/ontomasticon/ontomasticon/releases">https://github.com/ontomasticon/ontomasticon/releases</a>
     and unzip into appropriate directory on your web server.</p>
-  
+
+  <h2>Web server settings</h2>
+  <p>Every address that isn't a file, such as a stylesheet or image, must be passed to index.php, and the code and settings
+    directories must not be served.</p>
+  <ul>
+    <li><b>Apache</b>: the .htaccess file included with Ontomasticon does this. It needs mod_rewrite, and AllowOverride All (or
+      FileInfo) for the directory. The same rules can go in the virtual host configuration instead.</li>
+    <li><b>nginx</b>: nginx.conf.example is an example server block to adapt.</li>
+  </ul>
+
   <h2>Connect to MySQL</h2>
-  <p>In the settings directory of the cloned repository copy dp.php.default to db.php and enter your MySQL settings.</p>
-  
+  <p>In the settings directory copy db.php.default to db.php and enter your MySQL or MariaDB settings.</p>
+
   <h2>Run the install script</h2>
-  <p>In your web browser navigate to [base_url]/inst/install.php to run the install script.</p>
+  <p>In your web browser navigate to [base_url]/inst/install.php to run the install script. The installer sets base_url to the
+    address it was run from. Log in with the account admin and the password password, and you will be asked to choose a new
+    password. Then delete the inst directory.</p>
+
+  <h2>Installing in a subdirectory</h2>
+  <p>Ontomasticon can be installed in a subdirectory of a website, such as example.org/glossary/. The base_url setting (on the site
+    configuration page, and set by the installer) must include the subdirectory, for example example.org/glossary/: the site's
+    links, and the URIs of its vocabularies and terms, start with it.</p>
+  <ul>
+    <li><b>Apache</b>: the included .htaccess works in a subdirectory. If the site is reached through an Alias rather than a directory
+      under the document root, uncomment the RewriteBase line in .htaccess and give the subdirectory.</li>
+    <li><b>nginx</b>: add the subdirectory to the start of each location in nginx.conf.example, and to index.php in try_files, as
+      described in the comments at the top of that file.</li>
+  </ul>
+  <p>Sites in different subdirectories of the same domain have separate logins.</p>
+
+  <h2>Several sites in one database</h2>
+  <p>More than one Ontomasticon site can keep its tables in the same database, if each site's tables have a different prefix. Set
+    the prefix in settings/db.php before running the installer, using only letters A to Z, digits and underscores, for example:</p>
+  <pre><code>
+    $table_prefix = "glossary_";
+  </code></pre>
+  <p>The site's tables are then named glossary_config, glossary_terms and so on. Changing the prefix later points the site at a
+    different set of tables, so to change it, rename the tables too.</p>
 
   <h2>Debug mode</h2>
-  <p></p>To enable PHP debugging the set mode to 'debug' in the config table of the database.</p>
+  <p>To enable PHP debugging set mode to 'debug' in the config table of the database.</p>
 
 </body>
 </html>
