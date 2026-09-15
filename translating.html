@@ -14,7 +14,19 @@
   <h2>Translating the interface</h2>
   <p>The user interface can be translated by creating a 'language pack' in the lang folder, the jibberish language pack is provided
   as an example and basis for user translations. Please consider submitting a pull request on GitHub for new language pack files.</p>
-  
+  <p>A language pack is named after its language code, such as lang/fr.php, and defines a function named lang_ followed by the code,
+    which returns the translations. A hyphen in the code becomes an underscore in the function's name, so lang/pt-BR.php defines
+    lang_pt_BR().</p>
+
+  <h2 id="choosing">Choosing the language</h2>
+  <p>A site is offered in its default language, and in the languages listed under Other languages on the site configuration page
+    (language codes separated by spaces, such as <code>fr pt-BR</code>). Pages are shown in the one of these that the visitor's
+    browser prefers, from its language settings. A browser that prefers a language with a region, such as en-GB, gets the language
+    without it, such as en, and the other way round. Browsers that prefer none of the site's languages get the default language.</p>
+  <p>When a site is offered in more than one language, the menu has links to switch the page to each of them. A language chosen
+    this way is used for the rest of the visit. Adding <code>?lang=</code> and a language code to a page's address also shows it in
+    that language, for example [base_url]/?lang=fr.</p>
+
   <h2>Translating user content</h2>
   <p>Content entered by users, such as the site's settings, vocabularies and terms, is not translated by language packs. Only the
     site name and site description can be given in more than one language. Each term is recorded in a single language.</p>
@@ -30,8 +42,8 @@
       meta tag.</td></tr>
   </table>
   <p>If there is no row for the language, the untranslated setting is used. The language code must be exactly the code the page is
-    shown in, which is also the name of the language pack file (for example <code>fr</code> for lang/fr.php). A page is shown in
-    another language when <code>?lang=</code> and the language code are added to its address, for example [base_url]/?lang=fr.</p>
+    shown in, which is also the name of the language pack file (for example <code>fr</code> for lang/fr.php). See
+    <a href="#choosing">Choosing the language</a> for how a page's language is chosen.</p>
   <p>These rows cannot be set on the site configuration page, and must be added to the config table of the database directly. For
     example, for French:</p>
   <pre><code>
