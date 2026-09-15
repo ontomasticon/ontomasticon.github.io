@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="application-name" content="Ontomasticon">
+  <meta name="author" content="Ed Baker (https://ebaker.me.uk)">
+  <meta name="description" content="Simple ontology and glossary server.">
+  <title>Linked data and the API</title>
+</head>
+<body>
+  <h1>Linked data and the API</h1>
+  <p><a href="https://ontomasticon.github.io">Ontomasticon</a> is a simple, lightweight ontology and glossary server written in PHP and making use of MariaDB or MySQL.</p>
+  <p>This page describes how Ontomasticon publishes vocabularies and terms for other software: as linked data (JSON-LD and Turtle) at
+    their own addresses, through the API, and to search engines. It also describes the search box and how pages are cached. What each
+    field of a vocabulary or term becomes in linked data is described alongside the field on the page
+    <a href="editing.html">Editing vocabularies and terms</a>.</p>
+
+  <h2 id="negotiation">Linked data at the site's own addresses</h2>
+  <p>The addresses of the home page, of each controlled vocabulary and of each term that is not in a vocabulary show an HTML page to
+    browsers, and return RDF to linked data clients that ask for it, either with an Accept header or with <code>?format=</code>:</p>
+  <table>
+    <tr><th>To get</th><th>Send</th></tr>
+    <tr><td>JSON-LD</td><td><code>Accept: application/ld+json</code>, or add <code>?format=jsonld</code> to the address</td></tr>
+    <tr><td>Turtle</td><td><code>Accept: text/turtle</code>, or add <code>?format=ttl</code> to the address</td></tr>
+  </table>
+  <p>RDF is only returned when the Accept header prefers it to HTML. Clients that accept HTML as much as RDF, such as browsers, get the
+    HTML page, and a client that accepts JSON-LD and Turtle equally gets JSON-LD. <code>*/*</code> and <code>application/json</code> don't
+    ask for RDF. Responses say that they depend on the Accept header (<code>Vary: Accept</code>), and each HTML page links to its JSON-LD
+    and Turtle with <code>&lt;link rel="alternate"&gt;</code>. For a site with the base URL <code>glossary.example.org/</code>:</p>
+  <table>
+    <tr><th>Address</th><th>RDF returned</th></tr>
+    <tr><td>https://glossary.example.org/</td><td>The site's own concept scheme, followed by the terms that are not in a controlled
+      vocabulary</td></tr>
+    <tr><td>https://glossary.example.org/cv/calls</td><td>The <code>calls</code> vocabulary as a concept scheme, followed by its
+      terms</td></tr>
+    <tr><td>https://glossary.example.org/song</td><td>The term <code>song</code></td></tr>
+    <tr><td>https://glossary.example.org/cv/calls#song</td><td>The part after the # is not sent to the server, so the <code>calls</code>
+      vocabulary, which includes the term. Use the API for the term on its own.</td></tr>
+  </table>
+  <p>If there is no vocabulary or term at the address, the response is 404 Not Found, with an empty body. The list of vocabularies,
+    [base_url]/cv/, has no RDF.</p>
+
+  <h2 id="api">The API</h2>
+  <p>Each site describes its API at [base_url]/api/.</p>
+  <table>
+    <tr><th>Address</th><th>Returns</th></tr>
+    <tr><td>[base_url]/api/term/?shortname=[short name]</td><td>The term's database record as a JSON object, with each value as a
+      string and the term's URI as <code>url</code>. <code>null</code> if there is no such term.</td></tr>
+    <tr><td>[base_url]/api/term/?term=[URI]</td><td>The same, for the term with this URI. URL-encode the URI.</td></tr>
+    <tr><td>Either of the above with <code>&amp;format=jsonld</code> or <code>&amp;format=ttl</code></td><td>The term as RDF, in
+      JSON-LD or Turtle. 404 Not Found, with an empty body, if there is no such term.</td></tr>
+    <tr><td>[base_url]/api/cv/?shortname=[short name]</td><td>The vocabulary as a concept scheme followed by its terms, in JSON-LD, or in
+      Turtle with <code>&amp;format=ttl</code>. 404 Not Found, with an empty body, if there is no such vocabulary.</td></tr>
+    <tr><td>[base_url]/api/cv/</td><td>The site's own concept scheme, followed by the terms that are not in a controlled vocabulary, in
+      JSON-LD, or in Turtle with <code>?format=ttl</code>.</td></tr>
+    <tr><td>[base_url]/api/search/?q=[text]</td><td>Suggestions for the search box, as a JSON array of up to ten terms (see
+      <a href="#search">Searching</a>). Each has <code>name</code>, <code>shortname</code>, <code>acronym</code> (or null),
+      <code>uri</code>, <code>vocabulary</code> (the name of the term's vocabulary, or null) and <code>synonym_of</code> (for a synonym,
+      the name of the term it is a synonym of, whose URI is given; otherwise null).</td></tr>
+  </table>
+
+  <h2 id="rdf">What the RDF says</h2>
+  <p>Controlled vocabularies, and the site's own terms that are not in one, are SKOS concept schemes (skos:ConceptScheme). A scheme has
+    its title, description, publisher, license and preferred namespace prefix, its references, and its top concepts (skos:hasTopConcept).
+    The site's own scheme also has the site's author as its creator. See the site settings on the page
+    <a href="admin.html">Administering Ontomasticon</a>.</p>
+  <p>Terms are SKOS concepts (skos:Concept), with the properties that TDWG's Standards Documentation Specification requires of
+    controlled vocabulary terms:</p>
+  <ul>
+    <li>a label (rdfs:label and skos:prefLabel) and definition (rdfs:comment and skos:definition), tagged with the term's language;</li>
+    <li>the short name as the controlled value (rdf:value);</li>
+    <li>the scheme the term is in (skos:inScheme), and, for a term without a broader term, that it is a top concept (skos:topConceptOf);</li>
+    <li>broader, narrower and related terms (skos:broader, skos:narrower and skos:related);</li>
+    <li>alternative labels (skos:altLabel): the term's acronym and the names of its synonyms;</li>
+    <li>for a synonym, that it is deprecated (owl:deprecated) and replaced by (dcterms:isReplacedBy) the term it is a synonym of;</li>
+    <li>the dates the term was added and last changed (dcterms:created and dcterms:modified), as dates (xsd:date);</li>
+    <li>its references, as sources (dcterms:source) or bibliographic citations (dcterms:bibliographicCitation).</li>
+  </ul>
+  <p>Properties are also rdf:Property, and classes rdfs:Class, and a property's values are given as its range or in a note: see the
+    Type and Values fields on the page <a href="editing.html">Editing vocabularies and terms</a>. The
+    <a href="admin.html#readiness">linked data readiness report</a> lists what stops the vocabularies giving complete, clean RDF.</p>
+
+  <h3 id="ontolex">Glossaries: OntoLex and LexInfo</h3>
+  <p>On a site marked as a glossary (the Glossary setting on the page <a href="admin.html">Administering Ontomasticon</a>), the words
+    for each term are also published as a dictionary would publish them, as OntoLex lexical entries (ontolex:LexicalEntry), with LexInfo
+    saying what kind of word each one is. Each entry has a written form (ontolex:canonicalForm, with ontolex:writtenRep) and denotes
+    (ontolex:denotes) the term's concept.</p>
+  <table>
+    <tr><th>Word</th><th>Entry address</th><th>LexInfo</th></tr>
+    <tr><td>The term's name</td><td>The term's URI followed by <code>#entry</code>, or <code>:entry</code> for a term in a controlled
+      vocabulary, whose URI already has a #. For example https://glossary.example.org/pam#entry and
+      https://glossary.example.org/cv/calls#song:entry.</td><td>The preferred term (lexinfo:normativeAuthorization
+      lexinfo:preferredTerm). If the term has an acronym, the name is its full form (lexinfo:termType lexinfo:fullForm).</td></tr>
+    <tr><td>The term's acronym</td><td>The term's URI followed by <code>#acronym</code>, or <code>:acronym</code></td><td>An acronym
+      (lexinfo:termType lexinfo:acronym) for the name's entry (lexinfo:acronymFor).</td></tr>
+    <tr><td>A synonym's name</td><td>The synonym's URI followed by <code>#entry</code>, or <code>:entry</code></td><td>An admitted term
+      (lexinfo:normativeAuthorization lexinfo:admittedTerm), denoting the concept the synonym is a synonym of.</td></tr>
+  </table>
+  <p>On a glossary, a term's RDF is a graph (<code>@graph</code> in JSON-LD) of its concept followed by its entries, rather than a single
+    object, and a vocabulary's RDF gives the entries after its terms. The namespaces are
+    <code>http://www.w3.org/ns/lemon/ontolex#</code> (ontolex) and <code>http://www.lexinfo.net/ontology/3.0/lexinfo#</code>
+    (lexinfo).</p>
+
+  <h2 id="search-engines">Pages for search engines</h2>
+  <p>A term that is not in a controlled vocabulary has a page of its own at its URI, with its entry and a link to all of the site's
+    terms. Terms in a vocabulary are entries on the vocabulary's page. The pages of terms, vocabularies and the home page each have:</p>
+  <ul>
+    <li>a title made of the term's or vocabulary's name, then the site's name;</li>
+    <li>a description (the description meta tag) made from the term's definition or the vocabulary's description, as plain text of up to
+      300 characters, or otherwise the site's description;</li>
+    <li>a canonical address (<code>&lt;link rel="canonical"&gt;</code>): the term's or vocabulary's URI, or the site's address;</li>
+    <li>schema.org data in the page, which search engines and other crawlers read:
+      <ul>
+        <li>the home page describes the terms that are not in a vocabulary as a set of defined terms (DefinedTermSet), with the site's
+          name, description, language, author, publisher and license;</li>
+        <li>a vocabulary's page describes the vocabulary as a DefinedTermSet of its terms, with its references as citations;</li>
+        <li>a term's page describes the term as a defined term (DefinedTerm) in its set, with its short name as its code, and its acronym
+          and synonyms' names as other names.</li>
+      </ul></li>
+  </ul>
+  <p>An address that should be a term's or a vocabulary's, but isn't, is sent as 404 Not Found. Its page says so and still lists the
+    site's terms, or its vocabularies, as an old or mistyped link may be meant for one of them.</p>
+  <p>Ontomasticon also makes these files at the top of the site:</p>
+  <table>
+    <tr><th>File</th><th>Contents</th></tr>
+    <tr><td>[base_url]/robots.txt</td><td>Asks crawlers to keep out of [base_url]/admin/ and [base_url]/user/, and gives the address of
+      the sitemap.</td></tr>
+    <tr><td>[base_url]/sitemap.xml</td><td>The home page, each vocabulary's page and each term's page, with the date each term was last
+      changed when it is known.</td></tr>
+    <tr><td>[base_url]/favicon.ico</td><td>The site's icon.</td></tr>
+  </table>
+  <p>Don't put files with these names at the top of the installation, as the web server would send them instead.</p>
+
+  <h2 id="search">Searching</h2>
+  <p>Every page has a search box in its header. As you type two or more characters, it suggests terms and synonyms whose name, short
+    name or acronym contains the text, those starting with it first. Choose a suggestion with the arrow keys and Enter, or click it, to go
+    to the term; a synonym goes to the term it is a synonym of. Esc closes the suggestions.</p>
+  <p>Pressing Search, or Enter without choosing a suggestion, opens the results page at [base_url]/?q=[text]. It lists the terms whose
+    name, short name, acronym or definition contains the text, or that have a synonym whose name, short name or acronym does. Search
+    engines are asked not to index the results page. The search box works without JavaScript, though without suggestions.</p>
+  <p>The suggestions are made by the file js/search.js, so <code>js</code> can't be the short name of a term that is neither opaque nor
+    in a controlled vocabulary (see <a href="editing.html#shortnames">Short names</a>).</p>
+
+  <h2 id="caching">Caching</h2>
+  <p>Visitors don't get a session cookie unless they need one: when they log in or use the user and administration pages, submit a
+    form, or choose a language with <code>?lang=</code>, which is then remembered for the rest of their visit. Pages, linked data and API
+    responses for visitors without a session may be kept by browsers, crawlers and caches for five minutes
+    (<code>Cache-Control: public, max-age=300</code>), so a change can take up to five minutes to reach them. These responses vary by
+    cookie (<code>Vary: Cookie</code>), so logging in shows fresh pages, and pages for visitors with a session are not kept, so editors see
+    their changes at once.</p>
+  <p>Stylesheets and scripts are linked with the time they were last changed added to their address (<code>?v=</code>), so browsers
+    fetch them again after an update.</p>
+  <p>If the site is behind a CDN or caching proxy, remember that a page and its JSON-LD and Turtle share one address and differ by
+    Accept header. A cache that ignores <code>Vary: Accept</code> could send a browser JSON-LD, or a linked data client HTML. Either leave
+    the site's pages out of the cache, or include the Accept header in the cache key. Cloudflare, for example, doesn't cache HTML by
+    default, but a "Cache Everything" rule would ignore <code>Vary: Accept</code>.</p>
+
+</body>
+</html>

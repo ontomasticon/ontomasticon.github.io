@@ -9,8 +9,8 @@
 <body>
   <h1>Administering Ontomasticon</h1>
   <p><a href="https://ontomasticon.github.io">Ontomasticon</a> is a simple, lightweight ontology and glossary server written in PHP and making use of MariaDB or MySQL.</p>
-  <p>This page describes the administration pages: configuring the site, managing users and their roles, updating the database
-    and the warnings shown to administrators. Adding and editing controlled vocabularies and terms is described on the page
+  <p>This page describes the administration pages: configuring the site, managing users and their roles, the linked data readiness
+    report, updating the database and the warnings shown to administrators. Adding and editing controlled vocabularies and terms is described on the page
     <a href="editing.html">Editing vocabularies and terms</a>.</p>
 
   <h2>Logging in</h2>
@@ -68,6 +68,12 @@
     <tr><td>Description</td><td>A description of the site, shown on the home page. HTML can be used, and is shown as it is
       entered. The page's description meta tag uses it with HTML tags removed. In linked data it is the description
       (dcterms:description) of the site's own concept scheme, as plain text.</td></tr>
+    <tr><td>Glossary</td><td>Tick it if the site is a glossary. Terms on the home page, on vocabulary pages and in search results are
+      then listed in alphabetical order under a heading for each letter, with links from A to Z above and below the list. Names that
+      don't start with a letter from A to Z, including accented letters, are listed first, under #. A term with an acronym is also listed
+      under the acronym's letter, as "PAM, see Passive acoustic monitoring", and its entry shows the acronym. In linked data the words for
+      each term (its name, acronym and synonyms) are also published as a dictionary would publish them, with OntoLex and LexInfo: see
+      <a href="linked-data.html#ontolex">Linked data and the API</a>.</td></tr>
     <tr><td>License</td><td>The web address of the license the vocabularies are published under, for example
       <code>https://creativecommons.org/licenses/by/4.0/</code>. It must start with http:// or https://, or be left empty.
       It is given as the license (dcterms:license) of the site's own concept scheme and of every controlled vocabulary.</td></tr>
@@ -114,6 +120,27 @@
   <p>Any logged in user can change their own first name, last name and password on the user settings page, [base_url]/user/settings.
     To change the password, enter the current password and the new password twice.</p>
 
+  <h2 id="readiness">Linked data readiness</h2>
+  <p>The readiness report, [base_url]/admin/readiness, lists what stops the vocabularies giving complete, clean RDF in JSON-LD and
+    Turtle, and meeting TDWG's requirements for controlled vocabulary terms. It can be used by users with the Editor, Editor and CV
+    creator or Admin role, and is linked from the administration menu as Linked data readiness. Each problem lists the vocabularies or
+    terms it affects, each linked to the page where it can be fixed, and the report says "No problems found." when there are none. It
+    checks for:</p>
+  <ul>
+    <li>no license in the site configuration;</li>
+    <li>vocabularies without a namespace prefix, including the site's own terms when the site has no namespace prefix;</li>
+    <li>controlled vocabularies without a name;</li>
+    <li>terms without a name, or without a definition;</li>
+    <li>terms whose definition cites a reference, such as [2], that the term doesn't have;</li>
+    <li>terms whose language isn't a valid language tag, such as <code>en_GB</code>;</li>
+    <li>terms whose short name isn't safe in a URI, or whose URI clashes with another address on the site;</li>
+    <li>terms with text that isn't valid UTF-8;</li>
+    <li>synonyms without a parent term;</li>
+    <li>terms whose broader term is a different type, such as a property under a concept;</li>
+    <li>properties that don't say what values they take, or whose values come from a controlled vocabulary that doesn't exist;</li>
+    <li>terms that say what values they take, but aren't properties.</li>
+  </ul>
+
   <h2 id="update">Updating the database</h2>
   <p>New versions of Ontomasticon sometimes need changes to the database. After replacing the code with a new version, an admin should
     visit the database update page, [base_url]/admin/update (also available at [base_url]/update). The Database update warning links
@@ -129,7 +156,12 @@
       update stops and lists them: change or remove the duplicate accounts in the database, then run the update again.</td></tr>
     <tr><td>0.4</td><td>Records when terms are added and changed (terms that already exist are left without dates), and adds namespace
       prefixes for controlled vocabularies and the publisher, license and namespace prefix settings.</td></tr>
+    <tr><td>0.4.1</td><td>Adds term types (concept, property or class). Existing terms become concepts.</td></tr>
+    <tr><td>0.4.2</td><td>Records where a property's values come from: a controlled vocabulary or a datatype.</td></tr>
+    <tr><td>0.4.3</td><td>Lets a term have several references of any length.</td></tr>
+    <tr><td>0.4.4</td><td>Adds acronyms to terms. Saving a term fails until this update has been run.</td></tr>
   </table>
+  <p>The update also lets term languages be up to 35 characters long, if the database doesn't already allow it, whatever its version.</p>
 
   <h2>Forms</h2>
   <p>Every form carries a code tied to your login session, so that other websites cannot submit forms on your behalf. If a form is

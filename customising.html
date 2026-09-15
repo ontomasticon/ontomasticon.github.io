@@ -4,26 +4,59 @@
   <meta name="application-name" content="Ontomasticon">
   <meta name="author" content="Ed Baker (https://ebaker.me.uk)">
   <meta name="description" content="Simple ontology and glossary server.">
-  <title>Customiaing Ontomasticon</title>
+  <title>Customising Ontomasticon</title>
 </head>
 <body>
   <h1>Customising Ontomasticon</h1>
   <p><a href="https://ontomasticon.github.io">Ontomasticon</a> is a simple, lightweight ontology and glossary server written in PHP and making use of MariaDB or MySQL.</p>
-  <p>Ontomasticon is simple to customise using a mixture of CSS and PHP templates.</p>
-  
+  <p>Ontomasticon is simple to customise using a mixture of CSS and PHP templates, kept in the settings directory so that they stay in
+    place when the code is updated.</p>
+
   <h2>CSS Theming</h2>
-  <p>Ontomasticon comes with minimal theming out of the box. In order to facilitate easy code upgrades the only suggested method
-    of customising the CSS is to move the file settings/user.css.default to settings/user.css and make your required changes in this
-    file.</p>
-  
+  <p>The default theme, css/default.css, gives every page a readable layout, and moves the menu under the header on narrow screens. To
+    change it, copy settings/user.css.default to settings/user.css and make your changes there. Don't edit css/default.css itself, as
+    updates replace it. settings/user.css is loaded after the default theme, so its rules take precedence.</p>
+  <p>The theme's colours are CSS variables, so a few lines can restyle the site:</p>
+  <pre><code>
+    :root {
+      --accent: #2e7d32;
+      --accent-dark: #1b5e20;
+    }
+  </code></pre>
+  <table>
+    <tr><th>Variable</th><th>Used for</th></tr>
+    <tr><td><code>--text</code></td><td>Text</td></tr>
+    <tr><td><code>--muted</code></td><td>Less important text, such as term URIs, languages, references, the citation and the footer</td></tr>
+    <tr><td><code>--accent</code></td><td>Links, the edge of each term's box, buttons and focus outlines</td></tr>
+    <tr><td><code>--accent-dark</code></td><td>Links and buttons when hovered or focused</td></tr>
+    <tr><td><code>--border</code></td><td>Lines and borders, such as table borders and the rule under the header</td></tr>
+    <tr><td><code>--panel</code></td><td>Backgrounds of term boxes, code, the administration menu and the glossary's letter links</td></tr>
+    <tr><td><code>--error</code> and <code>--error-panel</code></td><td>Error messages and administration warnings, and their background</td></tr>
+    <tr><td><code>--success</code> and <code>--success-panel</code></td><td>Messages saying something was saved, and their background</td></tr>
+  </table>
+  <p>Stylesheets and scripts are linked with the time they were last changed added to their address, so visitors' browsers fetch
+    settings/user.css again after you change it.</p>
+
   <h2>PHP Templates</h2>
-  <p>Various PHP templates are found in the templates folder. The supported method of user modification is to copy files you wish to 
-    change into the settings directory where edits can be made, and will remian in place during code updates. The overall page layout
-    is provided by the core.php file. The homepage is structured by home.php, and controlled vocabulary pages by cv.php.</p>
-  
+  <p>Various PHP templates are found in the templates folder. The supported method of user modification is to copy files you wish to
+    change into the settings directory, where edits can be made and will remain in place during code updates. Ontomasticon uses a
+    template in the settings directory instead of the one in the templates folder with the same name. A copied template doesn't get
+    changes made to the original in later versions, so copy only the templates you need to change.</p>
+  <table>
+    <tr><th>Template</th><th>Shows</th></tr>
+    <tr><td>core.php</td><td>The overall page layout: the head of each page, the header with the search box, the menu, the citation and
+      the footer</td></tr>
+    <tr><td>home.php</td><td>The home page, or the search results when there is a search</td></tr>
+    <tr><td>cv.php</td><td>A controlled vocabulary's page, and the list of vocabularies</td></tr>
+    <tr><td>term.php</td><td>The page of a term that is not in a controlled vocabulary</td></tr>
+    <tr><td>search.php</td><td>The search results</td></tr>
+    <tr><td>not-found.php</td><td>The page for an address where there is no term</td></tr>
+    <tr><td>term-list.php</td><td>Every list of terms: on the home page, vocabulary pages and search results, including the A to Z layout
+      of a glossary</td></tr>
+  </table>
+
   <p>Fragment templates may be used multiple times on a page, and/or on multiple pages. The term-fragment.php file is used to control
-    how individual terms are displayed.</p>
-  
-    
+    how individual terms are displayed, and term-fragment-reference.php how a term's references are shown.</p>
+
 </body>
 </html>
