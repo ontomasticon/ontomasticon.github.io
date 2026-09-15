@@ -28,12 +28,15 @@
     can, to add a controlled vocabulary.</p>
   <p>Descriptions and term references are shown on the site exactly as they are entered, including any HTML, so only give editing
     roles to people you trust.</p>
+  <p>Editors can also see the <a href="admin.html#readiness">linked data readiness report</a>, which lists vocabularies and terms with
+    missing or invalid details, each linked to the page where it can be fixed.</p>
 
   <h2 id="uris">Addresses of vocabularies and terms</h2>
   <p>Each vocabulary and term is identified by a URI made from the site's base URL (see
     <a href="admin.html">Administering Ontomasticon</a>) and its short name. The same address shows the HTML page to browsers and
     returns JSON-LD or Turtle to linked data clients (for a term in a vocabulary, the part after the # is not sent to the server, so
-    the vocabulary is returned; the API returns a single term). For a site with the base URL <code>glossary.example.org/</code>:</p>
+    the vocabulary is returned; the API returns a single term). See <a href="linked-data.html">Linked data and the API</a>. For a site
+    with the base URL <code>glossary.example.org/</code>:</p>
   <table>
     <tr><th>What</th><th>URI</th></tr>
     <tr><td>A term that is not in a controlled vocabulary</td><td>https://glossary.example.org/song</td></tr>
@@ -42,9 +45,9 @@
     <tr><td>An opaque term, with the id 42, that is not in a controlled vocabulary</td><td>https://glossary.example.org/42</td></tr>
     <tr><td>An opaque term, with the id 42, in the <code>calls</code> vocabulary</td><td>https://glossary.example.org/cv/calls#42</td></tr>
   </table>
-  <p>Terms that are not in a controlled vocabulary are listed on the home page, and terms in a vocabulary on the vocabulary's page,
-    where each term's entry is the fragment (after the #) of its URI. The id of a term is a number given to it by the database
-    when it is added.</p>
+  <p>Terms that are not in a controlled vocabulary are listed on the home page, and each also has a page of its own at its URI. Terms
+    in a vocabulary are listed on the vocabulary's page, where each term's entry is the fragment (after the #) of its URI. The id of a
+    term is a number given to it by the database when it is added.</p>
   <p>Short names cannot be changed once a vocabulary or term has been added. Moving a term to a different vocabulary, or changing
     whether it is opaque, changes its URI, so decide these before the URIs are used elsewhere.</p>
 
@@ -59,8 +62,9 @@
     <li>A short name made only of digits can only be used for an opaque term, as it could be mistaken for another term's id.</li>
     <li>A term that is neither opaque nor in a controlled vocabulary cannot have a short name that the site already uses for something
       else: <code>api</code>, <code>cv</code>, <code>ping</code>, <code>update</code>, <code>user</code>, <code>admin</code>,
-      <code>settings</code>, the name of any file or directory at the top of the Ontomasticon installation (such as <code>css</code>,
-      <code>images</code>, <code>inst</code>, <code>lang</code> or <code>index.php</code>), or any name ending in <code>.php</code>.
+      <code>settings</code>, <code>robots.txt</code>, <code>sitemap.xml</code>, <code>favicon.ico</code>, the name of any file or
+      directory at the top of the Ontomasticon installation (such as <code>css</code>, <code>images</code>, <code>inst</code>,
+      <code>js</code>, <code>lang</code> or <code>index.php</code>), or any name ending in <code>.php</code>.
       These are compared ignoring upper and lower case. Such a term can still be added to a controlled vocabulary, or made opaque.</li>
   </ul>
   <p>When editing a term, the change is refused if taking it out of its vocabulary or making it no longer opaque would break these rules.</p>
@@ -79,9 +83,10 @@
       page. In linked data it is the vocabulary's title (dcterms:title, rdfs:label and skos:prefLabel).</td></tr>
     <tr><td>Description</td><td>Shown below the heading of the vocabulary's page. HTML can be used, and is shown as it is entered.
       In linked data it is the vocabulary's description (dcterms:description), with HTML tags removed.</td></tr>
-    <tr><td>Reference</td><td>Where the vocabulary comes from, up to 255 characters. It is not shown on the vocabulary's page. In linked
-      data a web address starting with http:// or https:// is given as the source (dcterms:source), and anything else as a
-      bibliographic citation (dcterms:bibliographicCitation).</td></tr>
+    <tr><td>Reference</td><td>Where the vocabulary comes from, up to 255 characters. It is not shown on the vocabulary's page. Several
+      references can be separated with <code>&lt;br&gt;</code>. In linked data each web address starting with http:// or https:// is
+      given as a source (dcterms:source), and anything else as a bibliographic citation (dcterms:bibliographicCitation). In the schema.org
+      data in the vocabulary's page, each reference is a citation.</td></tr>
     <tr><td>Namespace prefix</td><td>A short prefix for the vocabulary's terms in RDF, for example <code>calltype</code>. It must start
       with a letter, use only letters, digits, hyphens and underscores, and be at most 20 characters long, or be left empty. In linked
       data it is the vocabulary's preferred namespace prefix (vann:preferredNamespacePrefix), with the vocabulary's URI followed by # as
@@ -93,8 +98,11 @@
   <p>The edit page has the same fields as the add page, apart from the short name, which cannot be changed.</p>
 
   <h3>Deleting a controlled vocabulary</h3>
-  <p>Admins see a Delete button on the edit page. After confirming, the vocabulary and <em>all of its terms</em> are deleted. Terms in
-    other vocabularies that had one of the deleted terms as their parent or broader term are left without one. This cannot be undone.</p>
+  <p>Admins see a Delete button on the edit page. Deleting is refused while terms outside the vocabulary are synonyms of its terms, as
+    they would no longer say which term they are a synonym of: the page lists them, so their parent can be changed, or they can be
+    deleted, first. After confirming, the vocabulary and <em>all of its terms</em> are deleted. Terms in other vocabularies that had one
+    of the deleted terms as their parent or broader term are left without one, and properties whose values came from the vocabulary no
+    longer say where their values come from. This cannot be undone.</p>
 
   <h2>Terms</h2>
   <p>In linked data each term is a SKOS concept, with the properties TDWG requires of controlled vocabulary terms as well.</p>
@@ -108,12 +116,27 @@
       opaque term.</td></tr>
     <tr><td>Name</td><td>The name of the term, up to 200 characters, shown as the heading of its entry. In linked data it is the term's
       label (rdfs:label and skos:prefLabel).</td></tr>
+    <tr><td>Acronym</td><td>An acronym or initialism the term is also known by, for example <code>PAM</code> for passive acoustic
+      monitoring, up to 50 characters. It is found by the search, and shown in search suggestions. On a glossary (see the Glossary setting
+      on the page <a href="admin.html">Administering Ontomasticon</a>) it is also shown in the term's entry as "Acronym: PAM", and listed
+      under its own letter as "PAM, see Passive acoustic monitoring"; on other sites it is not shown in the term's entry. In linked data it
+      is an alternative label (skos:altLabel), and in the schema.org data in the term's page another name (alternateName).</td></tr>
     <tr><td>Description</td><td>The definition of the term, shown below its name. HTML can be used, and is shown as it is entered. In
       linked data it is the term's definition (rdfs:comment and skos:definition), with HTML tags removed.</td></tr>
-    <tr><td>Language</td><td>The language the name and description are written in, as a code of up to 5 characters, for example
-      <code>en</code> or <code>en-GB</code>. It is shown in the term's entry. In linked data the name and description are tagged with
-      this language if it is a valid language tag; a code such as <code>en_GB</code> is left out. See
-      <a href="translating.html">Translating Ontomasticon</a>.</td></tr>
+    <tr><td>Language</td><td>The language the name and description are written in, as a language tag of up to 35 characters, for
+      example <code>en</code>, <code>en-GB</code> or <code>zh-Hant</code>. It is shown in the term's entry. In linked data the name and
+      description are tagged with this language. See <a href="translating.html">Translating Ontomasticon</a>.</td></tr>
+    <tr><td>Type</td><td>Concept (the default), Property or Class. A concept is a term or a value, such as a type of call. A property is a
+      characteristic that is measured or recorded, such as pulse duration. A class is a kind of thing, such as a syllable. Properties and
+      classes are marked as such in the term's entry. In linked data every term is a SKOS concept, so any term can be used as, for
+      example, a Darwin Core measurement type. A property is also an rdf:Property and a class an rdfs:Class, both defined by
+      (rdfs:isDefinedBy) their vocabulary, or the site's own concept scheme. A property or class whose broader term is of the same type
+      is a sub-property (rdfs:subPropertyOf) or sub-class (rdfs:subClassOf) of it.</td></tr>
+    <tr><td>Values</td><td>For a property, where its values come from: Not stated, one of the site's controlled vocabularies, or a
+      datatype (Numbers, Whole numbers, Text, Yes or no, or Dates). It is shown in the term's entry as "Values:", linking to the
+      vocabulary. Other types of term don't have values, so saving a concept or class clears them. In linked data a datatype is the
+      property's range (rdfs:range): xsd:decimal, xsd:integer, xsd:string, xsd:boolean or xsd:date. There is no agreed way to say in RDF
+      that values come from a vocabulary, so this is given as a note (skos:scopeNote) naming the vocabulary and giving its URI.</td></tr>
     <tr><td>Opaque</td><td>If ticked, the term's URI ends with its id (a number given by the database) instead of its short name, as
       shown in <a href="#uris">Addresses of vocabularies and terms</a>. Use it when URIs should not carry meaning that might later
       change.</td></tr>
@@ -125,9 +148,12 @@
       already exist, but can be in any vocabulary.</td></tr>
     <tr><td>Broader term</td><td>The short name of a more general term, or empty, for building a hierarchy of terms. The term must
       already exist, but can be in any vocabulary.</td></tr>
-    <tr><td>Reference</td><td>Where the term or its definition comes from, up to 500 characters. It is shown in the term's entry, and HTML
-      can be used. In linked data a web address starting with http:// or https:// is given as the source (dcterms:source), and anything
-      else as a bibliographic citation (dcterms:bibliographicCitation), with HTML tags removed.</td></tr>
+    <tr><td>References</td><td>Where the term or its definition comes from, one reference per line. In the definition, [1] cites the
+      first reference, [2] the second, and so on. They are shown in the term's entry, numbered [1], [2] and so on, and HTML can be used.
+      In linked data each reference that is a web address starting with http:// or https:// is given as a source (dcterms:source), and
+      each other one as a bibliographic citation (dcterms:bibliographicCitation), with HTML tags removed. The
+      <a href="admin.html#readiness">linked data readiness report</a> lists terms whose definition cites a reference, such as [2], that
+      the term doesn't have.</td></tr>
   </table>
   <p>The dates when a term was added and last changed are recorded automatically, and given in linked data as dcterms:created and
     dcterms:modified. Terms added before version 0.4 have no date added, and no date changed until they are next edited.</p>
@@ -137,21 +163,26 @@
     terms. In linked data these are skos:broader and skos:narrower, and terms without a broader term are top concepts of their
     scheme. Synonyms are not listed as narrower terms.</p>
   <p><b>Synonyms</b> are terms with the Invalidity Synonym and the term they are a synonym of as their parent. A synonym is not listed
-    on its own, but under Related terms in its parent's entry, marked Synonym and with its language. In linked data the synonym's name is
-    an alternative label (skos:altLabel) of the parent, unless it is the same as the parent's name, and the synonym itself is marked as
-    deprecated (owl:deprecated) and replaced by its parent (dcterms:isReplacedBy). A synonym without a parent is not shown on any page,
-    though it is still included in linked data.</p>
-  <p><b>Other parents</b>: a term that has a parent but is not a synonym is listed on its own as usual, and also under Related terms in
-    its parent's entry. In linked data the two terms are related to each other (skos:related).</p>
+    on the home page or its vocabulary's page, but under Related terms in its parent's entry, marked Synonym and with its language. A
+    synonym that is not in a controlled vocabulary still has its own page at its URI, which gives the term it is a synonym of under
+    Related terms, marked Synonym of. In linked data the synonym's name is an alternative label (skos:altLabel) of the parent, unless it
+    is the same as the parent's name, and the synonym itself is marked as deprecated (owl:deprecated) and replaced by its parent
+    (dcterms:isReplacedBy). A synonym without a parent is not listed anywhere, though it is still included in linked data, and the
+    <a href="admin.html#readiness">linked data readiness report</a> lists it.</p>
+  <p><b>Other parents</b>: a term that has a parent but is not a synonym is listed on its own as usual, with its parent under Related
+    terms, and is also listed under Related terms in its parent's entry. In linked data the two terms are related to each other
+    (skos:related).</p>
+  <p>A term can't be its own parent or broader term. A change is also refused if following the parent terms, or the broader terms, up
+    from the term being saved would lead back to it, as that would make a loop.</p>
 
   <h3>Editing a term</h3>
   <p>The edit page has the same fields as the add page, apart from the short name, which cannot be changed. Saving records the date the
     term was changed.</p>
 
   <h3>Deleting a term</h3>
-  <p>The edit page has a Delete button. After confirming, the term is deleted, and other terms that had it as their parent or broader
-    term are left without one. Its synonyms are not deleted, but as they no longer have a parent they are no longer shown on any page.
-    This cannot be undone.</p>
+  <p>The edit page has a Delete button. Deleting a term that has synonyms is refused, as the synonyms would no longer say which term
+    they are a synonym of: the page lists them, so their parent can be changed, or they can be deleted, first. After confirming, the term
+    is deleted, and other terms that had it as their parent or broader term are left without one. This cannot be undone.</p>
 
 </body>
 </html>

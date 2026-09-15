@@ -21,6 +21,9 @@
       FileInfo) for the directory. The same rules can go in the virtual host configuration instead.</li>
     <li><b>nginx</b>: nginx.conf.example is an example server block to adapt.</li>
   </ul>
+  <p>index.php also makes robots.txt, sitemap.xml and favicon.ico, so don't put files with those names at the top of the installation,
+    as the web server would send them instead (see <a href="linked-data.html#search-engines">Pages for search engines</a>).</p>
+  <p>After replacing the code with a new version, run the <a href="admin.html#update">database update</a>.</p>
 
   <h2>Connect to MySQL</h2>
   <p>In the settings directory copy db.php.default to db.php and enter your MySQL or MariaDB settings.</p>
