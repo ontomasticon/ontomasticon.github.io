@@ -101,8 +101,8 @@
   <p>Admins see a Delete button on the edit page. Deleting is refused while terms outside the vocabulary are synonyms of its terms, as
     they would no longer say which term they are a synonym of: the page lists them, so their parent can be changed, or they can be
     deleted, first. After confirming, the vocabulary and <em>all of its terms</em> are deleted. Terms in other vocabularies that had one
-    of the deleted terms as their parent or broader term are left without one, and properties whose values came from the vocabulary no
-    longer say where their values come from. This cannot be undone.</p>
+    of the deleted terms as their parent or broader term are left without one, the deleted terms are removed from other terms' related
+    terms, and properties whose values came from the vocabulary no longer say where their values come from. This cannot be undone.</p>
 
   <h2>Terms</h2>
   <p>In linked data each term is a SKOS concept, with the properties TDWG requires of controlled vocabulary terms as well.</p>
@@ -143,11 +143,16 @@
     <tr><td>Controlled vocabulary</td><td>The vocabulary the term belongs to, or None. A term is in at most one vocabulary. This decides
       which page the term is listed on and the start of its URI.</td></tr>
     <tr><td>Invalidity</td><td>None, or Synonym if the term is a synonym of another term. Give the term it is a synonym of as the
-      parent. See <a href="#relations">Parents, synonyms and broader terms</a>.</td></tr>
+      parent. See <a href="#relations">Parents, synonyms, broader and related terms</a>.</td></tr>
     <tr><td>Parent</td><td>The short name of a related term, or empty. For a synonym, this is the term it is a synonym of. The term must
-      already exist, but can be in any vocabulary.</td></tr>
+      already exist, but can be in any vocabulary. A term has at most one parent, so to relate a term to several others, use Related
+      terms.</td></tr>
     <tr><td>Broader term</td><td>The short name of a more general term, or empty, for building a hierarchy of terms. The term must
       already exist, but can be in any vocabulary.</td></tr>
+    <tr><td>Related terms</td><td>The short names of other terms related to this one, such as terms to see also, separated by commas or
+      spaces, or empty. The terms must already exist, but can be in any vocabulary, and a term can't be related to itself. Each term is
+      listed as related to the other, so removing a term from the list also removes this term from that term's related terms. See
+      <a href="#relations">Parents, synonyms, broader and related terms</a>.</td></tr>
     <tr><td>References</td><td>Where the term or its definition comes from, one reference per line. In the definition, [1] cites the
       first reference, [2] the second, and so on. They are shown in the term's entry, numbered [1], [2] and so on, and HTML can be used.
       In linked data each reference that is a web address starting with http:// or https:// is given as a source (dcterms:source), and
@@ -158,7 +163,7 @@
   <p>The dates when a term was added and last changed are recorded automatically, and given in linked data as dcterms:created and
     dcterms:modified. Terms added before version 0.4 have no date added, and no date changed until they are next edited.</p>
 
-  <h3 id="relations">Parents, synonyms and broader terms</h3>
+  <h3 id="relations">Parents, synonyms, broader and related terms</h3>
   <p><b>Broader terms</b> build a hierarchy. A term's entry lists its broader term, and the broader term's entry lists it under Narrower
     terms. In linked data these are skos:broader and skos:narrower, and terms without a broader term are top concepts of their
     scheme. Synonyms are not listed as narrower terms.</p>
@@ -169,6 +174,10 @@
     is the same as the parent's name, and the synonym itself is marked as deprecated (owl:deprecated) and replaced by its parent
     (dcterms:isReplacedBy). A synonym without a parent is not listed anywhere, though it is still included in linked data, and the
     <a href="admin.html#readiness">linked data readiness report</a> lists it.</p>
+  <p><b>Related terms</b> are terms that are connected, such as terms to see also, without one being broader than the other. A term can
+    have any number of related terms. Being related goes both ways: each term is listed under Related terms in the other's entry, and in
+    linked data the two terms are related to each other (skos:related). A related term that is also the term's parent or one of its
+    children is listed, and linked, only once.</p>
   <p><b>Other parents</b>: a term that has a parent but is not a synonym is listed on its own as usual, with its parent under Related
     terms, and is also listed under Related terms in its parent's entry. In linked data the two terms are related to each other
     (skos:related).</p>
@@ -182,7 +191,8 @@
   <h3>Deleting a term</h3>
   <p>The edit page has a Delete button. Deleting a term that has synonyms is refused, as the synonyms would no longer say which term
     they are a synonym of: the page lists them, so their parent can be changed, or they can be deleted, first. After confirming, the term
-    is deleted, and other terms that had it as their parent or broader term are left without one. This cannot be undone.</p>
+    is deleted, other terms that had it as their parent or broader term are left without one, and it is removed from other terms'
+    related terms. This cannot be undone.</p>
 
 </body>
 </html>
