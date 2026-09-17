@@ -1,59 +1,151 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-GB">
 <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="application-name" content="Ontomasticon">
   <meta name="author" content="Ed Baker (https://ebaker.me.uk)">
-  <meta name="description" content="Simple ontology and glossary server.">
+  <meta name="description" content="Ontomasticon is a simple, lightweight ontology and glossary server written in PHP and making use of MariaDB or MySQL.">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0f1519" media="(prefers-color-scheme: dark)">
   <title>Ontomasticon</title>
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/site.css">
+  <script>document.documentElement.classList.add("js");</script>
+  <script src="assets/js/site.js" defer></script>
 </head>
 <body>
-  <h1>Ontomasticon</h1>
-    <p>Ontomasticon is a simple, lightweight ontology and glossary server written in PHP and making use of MariaDB or MySQL.</p>
-  
-  <h2>Etymology</h2>
-    <p>"The term onomastikón (collection of names, from ὄνομα/ónoma, ‘name’) describes learned works that are not arranged alphabetically but juxtapose synonyms and terms relating to the same semantic field." [<a href="#footnote1">1</a>]</p>
-    <p>"An ontology is a way of showing the properties of a subject area and how they are related, by defining a set of concepts and categories that represent the subject." [<a href="#footnote2">2</a>]</p>
-  
-  <h2>Installation</h2>
-  <p>Please see the <a href="installation.html">installation page</a> for instructions on installing Ontomasticon on your own server.</p>
+  <a class="skip-link" href="#content">Skip to content</a>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="index.html"><img src="assets/images/logo.svg" alt="" width="44" height="36">Ontomasticon</a>
+      <nav class="header-links" aria-label="Site">
+        <a class="header-link-docs" href="#documentation">Documentation</a>
+        <a href="https://github.com/ontomasticon/ontomasticon"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg><span class="header-link-label">GitHub</span></a>
+      </nav>
+    </div>
+  </header>
 
-  <h2>Administering Ontomasticon</h2>
-  <p>The page <a href="admin.html">Administering Ontomasticon</a> explains the site configuration, users and roles, database updates
-    and the warnings shown to administrators.</p>
+  <main id="content">
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-text">
+          <h1>Ontomasticon</h1>
+          <p class="hero-lead">Ontomasticon is a simple, lightweight ontology and glossary server written in PHP and making use of
+            MariaDB or MySQL.</p>
+          <p class="hero-actions">
+            <a class="button button-primary" href="installation.html">Install Ontomasticon</a>
+            <a class="button button-secondary" href="https://github.com/ontomasticon/ontomasticon"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>View on GitHub</a>
+          </p>
+        </div>
+        <div class="hero-art">
+          <img src="assets/images/logo.svg" alt="" width="368" height="298">
+        </div>
+      </div>
+    </section>
 
-  <h2>Editing vocabularies and terms</h2>
-  <p>The page <a href="editing.html">Editing vocabularies and terms</a> explains how to add, edit and delete controlled vocabularies
-    and terms, what each field means, and the URIs they are given.</p>
+    <section class="section" aria-labelledby="documentation">
+      <div class="section-inner">
+        <h2 id="documentation">Documentation</h2>
+        <ul class="cards">
+          <li class="card card-featured">
+            <span class="card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M4.5 15.5V18a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-2.5"/></svg></span>
+            <p class="card-kicker">Start here</p>
+            <h3><a href="installation.html">Installing Ontomasticon</a></h3>
+            <p>Instructions on installing Ontomasticon on your own server.</p>
+          </li>
+          <li class="card">
+            <span class="card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></span>
+            <h3><a href="admin.html">Administering Ontomasticon</a></h3>
+            <p>The site configuration, users and roles, database updates and the warnings shown to administrators.</p>
+          </li>
+          <li class="card">
+            <span class="card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L18.5 9.5a2.83 2.83 0 0 0-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/></svg></span>
+            <h3><a href="editing.html">Editing vocabularies and terms</a></h3>
+            <p>How to add, edit and delete controlled vocabularies and terms, what each field means, and the URIs they are given.</p>
+          </li>
+          <li class="card">
+            <span class="card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="8" r="2.5"/><circle cx="10" cy="18" r="2.5"/><path d="m8.47 6.41 7.06 1.18M6.79 8.37l2.42 7.26M16.44 9.95l-4.88 6.1"/></svg></span>
+            <h3><a href="linked-data.html">Linked data and the API</a></h3>
+            <p>The JSON-LD and Turtle published at each vocabulary's and term's address, the API, what search engines are given, the search box and caching.</p>
+          </li>
+          <li class="card">
+            <span class="card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v4M15 3v4"/><path d="M6.5 7h11v3.5a5.5 5.5 0 0 1-11 0V7Z"/><path d="M12 16v5"/></svg></span>
+            <h3><a href="mcp.html">The MCP server</a></h3>
+            <p>How AI applications, such as Claude, can search a site's terms and read them, how to turn the server on and connect to it, and its tools.</p>
+          </li>
+          <li class="card">
+            <span class="card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/></svg></span>
+            <h3><a href="customising.html">Customising Ontomasticon</a></h3>
+            <p>How to modify CSS and PHP templates while maintaining easy code updates.</p>
+          </li>
+          <li class="card">
+            <span class="card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.5 3.8 5.5 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.5-3.8-9S9.5 5.5 12 3Z"/></svg></span>
+            <h3><a href="translating.html">Translating Ontomasticon</a></h3>
+            <p>How to translate the user interface, user defined content and terms.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
 
-  <h2>Linked data and the API</h2>
-  <p>The page <a href="linked-data.html">Linked data and the API</a> explains the JSON-LD and Turtle published at each vocabulary's and
-    term's address, the API, what search engines are given, the search box and caching.</p>
+    <section class="section section-alt" aria-labelledby="etymology">
+      <div class="section-inner">
+        <h2 id="etymology">Etymology</h2>
+        <div class="quotes">
+          <figure class="quote">
+            <p class="quote-term">Onomastikón</p>
+            <blockquote>
+              <p>The term onomastikón (collection of names, from ὄνομα/ónoma, ‘name’) describes learned works that are not arranged
+                alphabetically but juxtapose synonyms and terms relating to the same semantic field.</p>
+            </blockquote>
+            <figcaption><cite><a href="https://referenceworks.brillonline.com/entries/brill-s-new-pauly/onomastikon-e831390?s.num=87&amp;s.start=80">Brill's New Pauly</a></cite></figcaption>
+          </figure>
+          <figure class="quote">
+            <p class="quote-term">Ontology</p>
+            <blockquote>
+              <p>An ontology is a way of showing the properties of a subject area and how they are related, by defining a set of concepts
+                and categories that represent the subject.</p>
+            </blockquote>
+            <figcaption><cite><a href="https://en.wikipedia.org/wiki/Ontology_(information_science)">Ontology (information science)</a>, Wikipedia</cite></figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
 
-  <h2>The MCP server</h2>
-  <p>The page <a href="mcp.html">The MCP server</a> explains how AI applications, such as Claude, can search a site's terms and read
-    them, how to turn the server on and connect to it, and its tools.</p>
+    <section class="section">
+      <div class="section-inner info-grid">
+        <div class="info">
+          <span class="info-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 9h18M6.5 6.75h.01M9 6.75h.01"/></svg></span>
+          <h2 id="usage-examples">Usage examples</h2>
+          <ul>
+            <li><a href="https://vocab.audioblast.org">audioBLAST! Vocabulary Server</a></li>
+          </ul>
+        </div>
+        <div class="info">
+          <span class="info-icon"><svg class="filled" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg></span>
+          <h2 id="source-code-and-issues">Source code and issues</h2>
+          <p>See the <a href="https://github.com/ontomasticon/ontomasticon">GitHub repository</a>.</p>
+        </div>
+        <div class="info">
+          <span class="info-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg></span>
+          <h2 id="contact">Contact</h2>
+          <p><a href="mailto:ontomasticon@googlegroups.com">ontomasticon@googlegroups.com</a></p>
+        </div>
+      </div>
+    </section>
+  </main>
 
-  <h2>Customising Ontomasticon</h2>
-  <p>The page <a href="customising.html">Customising Ontomasticon</a> explains how to modify CSS and PHP templates while maintaining
-    easy code updates.</p>
-  
-  <h2>Translating Ontomasticon</h2>
-  <p>The page <a href="translating.html">Translating Ontomasticon</a> describes how to translate the user interface, user defined content
-    and terms.</p>
-  
-  <h2>Usage examples</h2>
-  <ul>
-    <li><a href="https://vocab.audioblast.org">audioBLAST! Vocabulary Server</a></li>
-  </ul>
-  
-  <h2>Source code and issues</h2>
-  <p>See the <a href="https://github.com/ontomasticon/ontomasticon">GitHub repository</a>.</p>
-  
-  <h2>Contact</h2>
-  <p>ontomasticon@googlegroups.com</p>
-  
-  <h2>References</h2>
-  <p id="footnote1">[1] <a href="https://referenceworks.brillonline.com/entries/brill-s-new-pauly/onomastikon-e831390?s.num=87&s.start=80">Brill's New Pauly</a>.</p>
-  <p id="footnote2">[2] <a href="https://en.wikipedia.org/wiki/Ontology_(information_science)">Ontology (information science). Wikipedia.</a>.</p>
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <p class="footer-brand"><img src="assets/images/logo.svg" alt="" width="32" height="26">Ontomasticon</p>
+      <ul class="footer-links">
+        <li><a href="https://github.com/ontomasticon/ontomasticon">Source code</a></li>
+        <li><a href="https://github.com/ontomasticon/ontomasticon/issues">Issues</a></li>
+        <li><a href="mailto:ontomasticon@googlegroups.com">ontomasticon@googlegroups.com</a></li>
+      </ul>
+      <p class="footer-note">Ontomasticon is free software, released under the
+        <a href="https://github.com/ontomasticon/ontomasticon/blob/master/LICENSE">GNU General Public License, version 2</a>.</p>
+    </div>
+  </footer>
 </body>
 </html>
