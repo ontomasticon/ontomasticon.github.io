@@ -56,7 +56,10 @@
       <a href="#search">Searching</a>). Each has <code>name</code>, <code>shortname</code>, <code>acronym</code> (or null),
       <code>uri</code>, <code>vocabulary</code> (the name of the term's vocabulary, or null) and <code>synonym_of</code> (for a synonym,
       the name of the term it is a synonym of, whose URI is given; otherwise null).</td></tr>
+    <tr><td>[base_url]/api/mcp</td><td>The MCP server, for AI applications, if an admin has turned it on. See
+      <a href="mcp.html">The MCP server</a>.</td></tr>
   </table>
+  <p>Other addresses under [base_url]/api/ return 404 Not Found, with an empty body.</p>
 
   <h2 id="rdf">What the RDF says</h2>
   <p>Controlled vocabularies, and the site's own terms that are not in one, are SKOS concept schemes (skos:ConceptScheme). A scheme has

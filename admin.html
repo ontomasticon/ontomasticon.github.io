@@ -82,6 +82,9 @@
       characters long, or be left empty. In linked data it is given as the preferred namespace prefix
       (vann:preferredNamespacePrefix) of the site's own concept scheme, with the base URL as its namespace
       (vann:preferredNamespaceUri). Controlled vocabularies have prefixes of their own.</td></tr>
+    <tr><td>MCP server</td><td>Tick it to let AI applications that support the Model Context Protocol (MCP), such as Claude, search
+      the site's terms and read their definitions, references and related terms, at [base_url]/api/mcp. They can't change anything. See
+      <a href="mcp.html">The MCP server</a>.</td></tr>
   </table>
   <p>If the license or namespace prefix is not valid, none of the settings are saved.</p>
   <p>The config table has some rows that are not on this page: <code>mode</code> (set it to <code>debug</code> to show PHP errors),

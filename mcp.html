@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="application-name" content="Ontomasticon">
+  <meta name="author" content="Ed Baker (https://ebaker.me.uk)">
+  <meta name="description" content="Simple ontology and glossary server.">
+  <title>The MCP server</title>
+</head>
+<body>
+  <h1>The MCP server</h1>
+  <p><a href="https://ontomasticon.github.io">Ontomasticon</a> is a simple, lightweight ontology and glossary server written in PHP and making use of MariaDB or MySQL.</p>
+  <p>This page describes Ontomasticon's MCP server, which lets AI applications that support the Model Context Protocol (MCP), such as
+    Claude, search a site's terms and read them. The server only reads: it can't change anything on the site. The other ways software
+    can read a site's vocabularies and terms are described on the page <a href="linked-data.html">Linked data and the API</a>.</p>
+
+  <h2 id="turning-on">Turning it on</h2>
+  <p>The MCP server is off until an admin ticks MCP server on the site configuration page, [base_url]/admin/config (see
+    <a href="admin.html">Administering Ontomasticon</a>). Its address is then [base_url]/api/mcp, for example
+    <code>https://glossary.example.org/api/mcp</code>, and the API page, [base_url]/api/, describes it and its tools. While it is off, the
+    address returns 404 Not Found. The server needs PHP's JSON extension, which the configuration page says if PHP doesn't have.</p>
+  <p>The web server needs no changes, as requests to the MCP server go through index.php like the site's pages. If the site is behind a
+    CDN or firewall, see <a href="#cdn">Behind a CDN or firewall</a>.</p>
+
+  <h2 id="connecting">Connecting to it</h2>
+  <table>
+    <tr><th>Application</th><th>How</th></tr>
+    <tr><td>Claude Code</td><td>Run <code>claude mcp add --transport http glossary https://glossary.example.org/api/mcp</code>, with the
+      site's own address and any name in place of <code>glossary</code>. Add <code>--scope user</code> to use it in all of your
+      projects.</td></tr>
+    <tr><td>Claude (claude.ai and the Claude apps)</td><td>Add a custom connector with the server's address. Claude connects to it from
+      Anthropic's servers, so the site must be reachable from the internet.</td></tr>
+    <tr><td>Other applications</td><td>Any MCP client that supports the Streamable HTTP transport can connect to the server's address.</td></tr>
+  </table>
+  <p>No login or key is needed. The server only gives what the site's pages and API already publish.</p>
+
+  <h2 id="tools">Tools</h2>
+  <table>
+    <tr><th>Tool</th><th>Arguments</th><th>Gives</th></tr>
+    <tr><td>search_terms</td><td><code>query</code>: text to search for, of up to 100 characters. It is matched as it is given, not word
+      by word.<br><code>limit</code> (optional): the most terms to give, from 1 to 50. The default is 10.</td><td>The terms whose name,
+      short name, acronym or definition contains the text, or that have a synonym whose name, short name or acronym does, those whose
+      name starts with it first, then in order of name. A synonym isn't given itself, but finds the term it is a synonym of. Each term
+      has its name, short name, URI, acronym, type, the name of its vocabulary (null for the site's own terms), its definition as plain
+      text shortened to at most 300 characters, and the names of its synonyms. <code>more</code> says whether more terms match.</td></tr>
+    <tr><td>get_term</td><td><code>uri</code>: the term's URI, exactly as the other tools give it, or<br><code>shortname</code>: the
+      term's short name</td><td>The term's URI, short name, name, acronym, type, language, full definition as plain text, and references
+      in order, so that [1] in the definition cites the first. Also its vocabulary, whether it is deprecated, the term it is a synonym of,
+      its synonyms, and its broader, narrower and related terms, each as a name and URI. Related terms include parent and child terms
+      that aren't synonyms, as the site's pages show them. For a property, <code>values</code> gives where its values come from: a
+      datatype (decimal, integer, string, boolean or date) or a controlled vocabulary. <code>created</code> and <code>modified</code>
+      give the dates the term was added and last changed, when they are known.</td></tr>
+    <tr><td>list_vocabularies</td><td>None</td><td>First the site's own terms, which aren't in a controlled vocabulary, with a null short
+      name and the site's name, description and address. Then each controlled vocabulary, in order of short name, with its short name,
+      name, description as plain text and URI. Each has the number of terms in it, not counting synonyms.</td></tr>
+    <tr><td>list_terms</td><td><code>vocabulary</code> (optional): a vocabulary's short name. Leave it out for the site's own
+      terms.<br><code>offset</code> (optional): how many terms to skip, 0 for the first terms.</td><td>50 terms at a time, in order of
+      name, each given as search_terms gives it, with the vocabulary, <code>total</code> (the number of terms, not counting synonyms,
+      which are given with their terms) and <code>next_offset</code>, the offset of the next terms, or null when there are no
+      more.</td></tr>
+  </table>
+  <p>Each result is given as structured data, which matches the tool's output schema, and as the same JSON in text, for applications
+    that only read text. When a tool can't answer, for example because no term has the URI it was given, or a limit is out of range, the
+    result is an error saying what to change, which the application's model can read and correct.</p>
+  <p>The server also gives instructions, which applications pass to their model. They give the site's name and description, say how to
+    use the tools, and ask the model to give a term's URI and the references it gives when it uses a definition. They also give the
+    site's publisher and license, if they are set.</p>
+
+  <h2 id="requests">How requests work</h2>
+  <p>This section is for developers of MCP clients, and for checking the server works. Clients post JSON-RPC 2.0 messages to
+    [base_url]/api/mcp, one message per request, and the server answers with JSON (MCP's Streamable HTTP transport, without streaming).
+    The server supports these protocol versions:</p>
+  <table>
+    <tr><th>Version</th><th>How clients use it</th></tr>
+    <tr><td>2026-07-28</td><td>Each request gives its protocol version and the client's capabilities in <code>_meta</code>, and repeats
+      the version, method and tool name in the <code>MCP-Protocol-Version</code>, <code>Mcp-Method</code> and <code>Mcp-Name</code>
+      headers, which must match the request. <code>server/discover</code> gives the supported versions, the server's capabilities and
+      its instructions.</td></tr>
+    <tr><td>2025-11-25, 2025-06-18 and 2025-03-26</td><td>Clients start with <code>initialize</code>, and may <code>ping</code>. The
+      server gives no session ID, and answers each request on its own.</td></tr>
+  </table>
+  <p>For example, to search a site's terms:</p>
+  <pre><code>curl -X POST https://glossary.example.org/api/mcp -H "Content-Type: application/json" \
+  -H "MCP-Protocol-Version: 2026-07-28" -H "Mcp-Method: tools/call" -H "Mcp-Name: search_terms" \
+  --data '{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "search_terms",
+    "arguments": {"query": "song"}, "_meta": {"io.modelcontextprotocol/protocolVersion": "2026-07-28",
+    "io.modelcontextprotocol/clientCapabilities": {}}}}'</code></pre>
+  <table>
+    <tr><th>Request</th><th>Response</th></tr>
+    <tr><td>A request the server answers, including a tool call that gives an error, or names a tool the server doesn't have
+      (JSON-RPC error -32602)</td><td>200 OK</td></tr>
+    <tr><td>A notification, such as <code>notifications/initialized</code></td><td>202 Accepted, with an empty body</td></tr>
+    <tr><td>OPTIONS, which browsers send before letting scripts on other websites post requests</td><td>204 No Content, allowing POST
+      with the headers MCP uses</td></tr>
+    <tr><td>A body that isn't JSON (-32700), isn't a single JSON-RPC 2.0 message (-32600), or is missing <code>_meta</code> fields
+      (-32602), headers that don't match the request (-32020), or a protocol version the server doesn't support (-32022, listing those
+      it does)</td><td>400 Bad Request</td></tr>
+    <tr><td>A method the server doesn't have (-32601)</td><td>404 Not Found for protocol version 2026-07-28. 200 OK for earlier
+      versions, whose clients may take an HTTP error as a failed connection.</td></tr>
+    <tr><td>GET, DELETE or another HTTP method</td><td>405 Method Not Allowed</td></tr>
+    <tr><td>A request of more than 64 KB</td><td>413 Content Too Large</td></tr>
+    <tr><td>Any request while the MCP server is off</td><td>404 Not Found, with an empty body</td></tr>
+  </table>
+  <p>Requests to the server start no session and set no cookies, and scripts on other websites may use it
+    (<code>Access-Control-Allow-Origin: *</code>), as they may use the rest of the API. <code>server/discover</code> and
+    <code>tools/list</code> say their results are the same for everyone and may be kept for five minutes, as the site's public pages may
+    be.</p>
+
+  <h2 id="cdn">Behind a CDN or firewall</h2>
+  <p>Requests to the MCP server are posts from programs, not browsers. A CDN or firewall that challenges bots, such as Cloudflare's bot
+    protection, will stop them, so let POST and OPTIONS requests to [base_url]/api/mcp through, and don't cache their responses. The
+    server doesn't limit how often it is used: if that is needed, limit requests to [base_url]/api/mcp at the web server or CDN.</p>
+
+</body>
+</html>
