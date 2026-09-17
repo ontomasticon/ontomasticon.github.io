@@ -1,19 +1,58 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-GB">
 <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="application-name" content="Ontomasticon">
   <meta name="author" content="Ed Baker (https://ebaker.me.uk)">
-  <meta name="description" content="Simple ontology and glossary server.">
-  <title>Editing vocabularies and terms</title>
+  <meta name="description" content="How to add, edit and delete controlled vocabularies and terms in Ontomasticon, what each field means, and the URIs they are given.">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0f1519" media="(prefers-color-scheme: dark)">
+  <title>Editing vocabularies and terms – Ontomasticon</title>
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/site.css">
+  <script>document.documentElement.classList.add("js");</script>
+  <script src="assets/js/site.js" defer></script>
 </head>
 <body>
+  <a class="skip-link" href="#content">Skip to content</a>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <button class="nav-toggle" type="button" aria-controls="site-nav" aria-expanded="false">
+        <svg class="icon-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        <svg class="icon-close" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        <span class="visually-hidden">Menu</span>
+      </button>
+      <a class="brand" href="index.html"><img src="assets/images/logo.svg" alt="" width="44" height="36">Ontomasticon</a>
+      <nav class="header-links" aria-label="Site">
+        <a class="header-link-docs" href="index.html#documentation">Documentation</a>
+        <a href="https://github.com/ontomasticon/ontomasticon"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg><span class="header-link-label">GitHub</span></a>
+      </nav>
+    </div>
+  </header>
+  <div class="docs">
+    <nav class="sidebar" id="site-nav" aria-label="Documentation">
+      <p class="sidebar-title">Documentation</p>
+      <ul>
+        <li><a href="index.html">Overview</a></li>
+        <li><a href="installation.html">Installing</a></li>
+        <li><a href="admin.html">Administering</a></li>
+        <li><a href="editing.html" aria-current="page">Editing vocabularies and terms</a></li>
+        <li><a href="linked-data.html">Linked data and the API</a></li>
+        <li><a href="mcp.html">The MCP server</a></li>
+        <li><a href="customising.html">Customising</a></li>
+        <li><a href="translating.html">Translating</a></li>
+      </ul>
+    </nav>
+    <main class="content" id="content">
+
   <h1>Editing vocabularies and terms</h1>
   <p><a href="https://ontomasticon.github.io">Ontomasticon</a> is a simple, lightweight ontology and glossary server written in PHP and making use of MariaDB or MySQL.</p>
   <p>This page describes how to add, edit and delete controlled vocabularies (CVs) and terms, what each field of the forms means,
     and the addresses (URIs) vocabularies and terms are given. Users, roles and site settings are described on the page
     <a href="admin.html">Administering Ontomasticon</a>.</p>
 
-  <h2>Who can edit</h2>
+  <h2 id="who-can-edit">Who can edit</h2>
   <p>What a user can do depends on their role (see <a href="admin.html">Administering Ontomasticon</a>).</p>
   <table>
     <tr><th>Page</th><th>Address</th><th>Roles</th></tr>
@@ -69,11 +108,11 @@
   </ul>
   <p>When editing a term, the change is refused if taking it out of its vocabulary or making it no longer opaque would break these rules.</p>
 
-  <h2>Controlled vocabularies</h2>
+  <h2 id="controlled-vocabularies">Controlled vocabularies</h2>
   <p>A controlled vocabulary is a named list of terms with a page of its own. In linked data each vocabulary is a SKOS concept scheme.
     Terms that are not in any vocabulary belong to the site's own concept scheme, which is described by the site's settings.</p>
 
-  <h3>Adding a controlled vocabulary</h3>
+  <h3 id="adding-a-controlled-vocabulary">Adding a controlled vocabulary</h3>
   <p>Use the Add controlled vocabulary link in the administration menu. The form has these fields:</p>
   <table>
     <tr><th>Field</th><th>Meaning</th></tr>
@@ -94,20 +133,20 @@
   </table>
   <p>The site's publisher and license settings are given for every vocabulary.</p>
 
-  <h3>Editing a controlled vocabulary</h3>
+  <h3 id="editing-a-controlled-vocabulary">Editing a controlled vocabulary</h3>
   <p>The edit page has the same fields as the add page, apart from the short name, which cannot be changed.</p>
 
-  <h3>Deleting a controlled vocabulary</h3>
+  <h3 id="deleting-a-controlled-vocabulary">Deleting a controlled vocabulary</h3>
   <p>Admins see a Delete button on the edit page. Deleting is refused while terms outside the vocabulary are synonyms of its terms, as
     they would no longer say which term they are a synonym of: the page lists them, so their parent can be changed, or they can be
     deleted, first. After confirming, the vocabulary and <em>all of its terms</em> are deleted. Terms in other vocabularies that had one
     of the deleted terms as their parent or broader term are left without one, the deleted terms are removed from other terms' related
     terms, and properties whose values came from the vocabulary no longer say where their values come from. This cannot be undone.</p>
 
-  <h2>Terms</h2>
+  <h2 id="terms">Terms</h2>
   <p>In linked data each term is a SKOS concept, with the properties TDWG requires of controlled vocabulary terms as well.</p>
 
-  <h3>Adding a term</h3>
+  <h3 id="adding-a-term">Adding a term</h3>
   <p>Use the Add term link in the administration menu. The form has these fields:</p>
   <table>
     <tr><th>Field</th><th>Meaning</th></tr>
@@ -184,15 +223,29 @@
   <p>A term can't be its own parent or broader term. A change is also refused if following the parent terms, or the broader terms, up
     from the term being saved would lead back to it, as that would make a loop.</p>
 
-  <h3>Editing a term</h3>
+  <h3 id="editing-a-term">Editing a term</h3>
   <p>The edit page has the same fields as the add page, apart from the short name, which cannot be changed. Saving records the date the
     term was changed.</p>
 
-  <h3>Deleting a term</h3>
+  <h3 id="deleting-a-term">Deleting a term</h3>
   <p>The edit page has a Delete button. Deleting a term that has synonyms is refused, as the synonyms would no longer say which term
     they are a synonym of: the page lists them, so their parent can be changed, or they can be deleted, first. After confirming, the term
     is deleted, other terms that had it as their parent or broader term are left without one, and it is removed from other terms'
     related terms. This cannot be undone.</p>
 
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <p class="footer-brand"><img src="assets/images/logo.svg" alt="" width="32" height="26">Ontomasticon</p>
+      <ul class="footer-links">
+        <li><a href="https://github.com/ontomasticon/ontomasticon">Source code</a></li>
+        <li><a href="https://github.com/ontomasticon/ontomasticon/issues">Issues</a></li>
+        <li><a href="mailto:ontomasticon@googlegroups.com">ontomasticon@googlegroups.com</a></li>
+      </ul>
+      <p class="footer-note">Ontomasticon is free software, released under the
+        <a href="https://github.com/ontomasticon/ontomasticon/blob/master/LICENSE">GNU General Public License, version 2</a>.</p>
+    </div>
+  </footer>
 </body>
 </html>
