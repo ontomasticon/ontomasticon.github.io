@@ -687,14 +687,22 @@ pre code {
   text-decoration: underline;
 }
 
-.footer-note {
+/* The license, and who created Ontomasticon */
+.footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 2rem;
   flex-basis: 100%;
-  margin: 0;
   padding-top: 1rem;
   border-top: 1px solid var(--border);
 }
 
-.footer-note a {
+.footer-bottom p {
+  margin: 0;
+}
+
+.footer-bottom a {
   color: inherit;
 }
 
