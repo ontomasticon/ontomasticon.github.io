@@ -91,6 +91,12 @@
   <p>The site's tables are then named glossary_config, glossary_terms and so on. Changing the prefix later points the site at a
     different set of tables, so to change it, rename the tables too.</p>
 
+  <h2 id="monitoring">Monitoring</h2>
+  <p>A monitoring service can check the site at two addresses. <code>/ping</code> replies <code>pong</code> when the site is up.
+    <code>/dbping</code> also asks the database to answer a query, and replies <code>pong</code> only if it does, or HTTP 503 if it
+    doesn't. A site that can't connect to its database replies HTTP 503 at every address. Neither reply is cached. In a
+    subdirectory, add the subdirectory to the start of each, for example <code>/glossary/dbping</code>.</p>
+
   <h2 id="debug-mode">Debug mode</h2>
   <p>To enable PHP debugging set mode to 'debug' in the config table of the database.</p>
 
